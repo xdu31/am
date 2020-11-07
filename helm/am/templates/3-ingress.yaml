@@ -1,0 +1,19 @@
+{{ $namespace := .Release.Namespace }}
+{{ $domain := .Values.domain }}
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: am-ingress
+  namespace: {{ $namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /openam
+spec:
+  rules:
+  - host: {{ $domain }}
+    http:
+      paths:
+        - path: /openam
+          backend:
+            serviceName: am
+            servicePort: 8080

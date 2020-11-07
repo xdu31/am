@@ -1,0 +1,8 @@
+domain: example.openam.com
+
+replicas: 1
+
+image:
+  repository: xdu31
+  name: am
+  tag: "latest"

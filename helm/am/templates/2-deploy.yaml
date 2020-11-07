@@ -1,0 +1,51 @@
+{{ $appName := include "am.fullname" . }}
+{{ $namespace := .Release.Namespace }}
+{{ $imageRepo := .Values.image.repository }}
+{{ $imageName := .Values.image.name }}
+{{ $imageTag := .Values.image.tag | default .Chart.Version }}
+{{ $replicas := .Values.replicas }}
+{{ $domain := .Values.domain }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: am
+  namespace: {{ $namespace }}
+  labels:
+    app: {{ $appName }}
+spec:
+  clusterIP: None
+  selector:
+    app: {{ $appName }}
+  ports:
+  - port: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: am
+  namespace: {{ $namespace }}
+  labels:
+    app: {{ $appName }}
+spec:
+  serviceName: am
+  replicas: {{ $replicas }}
+  selector:
+    matchLabels:
+      app: {{ $appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $appName }}
+    spec:
+      containers:
+      - name: am
+        image: {{ $imageRepo}}/{{ $imageName }}:{{ $imageTag }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 4444
+          protocol: TCP
+        - containerPort: 50389
+          protocol: TCP
